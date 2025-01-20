@@ -1,0 +1,41 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: ojembs
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: serverless-nodejs-api
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  environment:
+    DEBUG: ${env:DEBUG, 0}
+    HELLO_WORLD: ${env:HELLO_WORLD, "fallback value"}
+    DATABASE_URL: ${env:DATABASE_URL, "fallback value"}
+  iam:
+    role:
+      name: serverless-my-ssm-role
+      statements:
+        - Effect: 'Allow'
+          Resource: '*'
+          Action: 
+            - "ssm:GetParameter"
+            - "ssm:GetParameters"
+            - "ssm:GetParametersByPath"
+            - "ssm:GetParameterHistory"
+            - "ssm:DescribeParameters"
+
+functions:
+  api:
+    handler: handler.handler
+    events:
+      - httpApi: "*"
+
+custom:
+  dotenv:
+    exclude:
+      - DATABASE_URL
+
+plugins:
+  - serverless-offline
+  
